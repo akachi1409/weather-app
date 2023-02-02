@@ -15,10 +15,27 @@ function App() {
     console.log(data);
     var temp = [];
     for (var i = 0; i < data.length; i++) {
-      temp.push({
-        name: data[i].split(":")[1],
-        uid: data[i].split(":")[0],
-      });
+      console.log(data[i]);
+      console.log("---", data[i].substring(37));
+      const cityData = JSON.parse(String(data[i].substring(37)));
+      //round the temperature
+      cityData.main.temp = Math.round(cityData.main.temp);
+
+      //add a date + time to the city weather object
+      const today = new Date();
+      const hour = function () {
+        const hr = today.getUTCHours() + cityData.timezone / 3600;
+        return hr < 10 ? "0" + hr : hr;
+      };
+      const minutes = function () {
+        return today.getMinutes() < 10
+          ? "0" + today.getMinutes()
+          : today.getMinutes();
+      };
+      cityData.time = hour() + ":" + minutes();
+      cityData.day = today.toLocaleDateString("en-US", { weekday: "long" });
+      cityData.uid = data[i].substring(0, 36);
+      temp.push(cityData);
     }
     setCities(temp);
   }
@@ -34,8 +51,8 @@ function App() {
       <ToastContainer transition={Slide} />
       {cities.length === 0 ? <Heading /> : <></>}
 
-      <Widgets cities={cities} setCities={setCities} getCities= {getCities}/>
-      <Form setCities={setCities} getCities= {getCities} />
+      <Widgets cities={cities} setCities={setCities} getCities={getCities} />
+      <Form setCities={setCities} getCities={getCities} />
     </div>
   );
 }
